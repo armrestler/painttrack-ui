@@ -1,4 +1,4 @@
-import { createEmptyAppData } from './domain/defaultData.js';
+import { createEmptyAppData } from './domain/defaultData.js?v=20260328-ui-shell-3';
 import {
   addRequestItem,
   createRequest,
@@ -8,7 +8,7 @@ import {
   updateRequestField,
   updateRequestItemField,
   validateRequest
-} from './application/requestService.js';
+} from './application/requestService.js?v=20260328-ui-shell-3';
 import {
   loadSettings,
   saveSettings,
@@ -18,9 +18,9 @@ import {
   loadSyncMeta,
   saveSyncMeta,
   defaultSyncMeta
-} from './infrastructure/storage/localStore.js';
-import { syncOnOpen, pushLocalState, pullRemoteState } from './application/syncService.js';
-import { renderSettings, renderWorkspace, showStatus } from './ui/render.js';
+} from './infrastructure/storage/localStore.js?v=20260328-ui-shell-3';
+import { syncOnOpen, pushLocalState, pullRemoteState } from './application/syncService.js?v=20260328-ui-shell-3';
+import { renderSettings, renderWorkspace, showStatus } from './ui/render.js?v=20260328-ui-shell-3';
 
 const state = {
   settings: loadSettings(),
