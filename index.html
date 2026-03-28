@@ -46,7 +46,7 @@
         <section>
           <h2>Дії</h2>
           <div class="actions">
-            <button id="add-demo-request" type="button">Додати тестову заявку</button>
+            <button id="add-demo-request" type="button">Створити заявку</button>
             <button id="sync-now" type="button">Синхронізувати</button>
             <button id="pull-remote" type="button">Отримати з GitHub</button>
             <button id="clear-local" type="button" class="secondary">Очистити локальні дані</button>
@@ -70,7 +70,7 @@
         <section class="header-row">
           <div>
             <h2>Заявки</h2>
-            <p class="muted">Поки що тут лише мінімальна структура для перевірки флоу.</p>
+            <p class="muted">Вибери заявку в таблиці, щоб відкрити редактор деталей і позицій.</p>
           </div>
         </section>
 
@@ -93,6 +93,16 @@
             </tbody>
           </table>
         </div>
+
+        <section class="editor-section">
+          <div class="header-row editor-header-row">
+            <div>
+              <h2>Деталі заявки</h2>
+              <p class="muted">Редагування зберігається локально і входить у наявний save/sync flow.</p>
+            </div>
+          </div>
+          <div id="request-details"></div>
+        </section>
 
         <section>
           <h2>Raw snapshot</h2>

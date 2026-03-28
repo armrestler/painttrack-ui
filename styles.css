@@ -11,6 +11,8 @@
   --warning-bg: #fff7ed;
   --danger: #991b1b;
   --danger-bg: #fef2f2;
+  --info-bg: #eef6ff;
+  --info-text: #1d4ed8;
   --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
@@ -59,6 +61,18 @@ input {
   border-radius: 10px;
   font: inherit;
 }
+textarea,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: inherit;
+  background: #fff;
+}
+textarea {
+  resize: vertical;
+}
 .checkbox {
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -81,6 +95,10 @@ button {
 }
 button.secondary {
   background: #475569;
+}
+button.compact-button {
+  padding: 8px 10px;
+  font-size: 0.9rem;
 }
 button:hover { opacity: 0.94; }
 .actions {
@@ -133,6 +151,7 @@ button:hover { opacity: 0.94; }
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: 14px;
+  background: #fff;
 }
 table {
   width: 100%;
@@ -148,10 +167,116 @@ th {
   background: #f8fafc;
   font-size: 0.92rem;
 }
+tbody tr[data-request-id] {
+  cursor: pointer;
+}
+tbody tr[data-request-id]:hover {
+  background: #f8fafc;
+}
+.selected-row {
+  background: #ecfdf3;
+}
 .empty {
   text-align: center;
   color: var(--muted);
   padding: 20px;
+}
+.editor-section {
+  margin-top: 20px;
+}
+.editor-header-row {
+  margin-bottom: 12px;
+}
+.editor-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px;
+  background: #fcfdff;
+}
+.editor-card + .editor-card {
+  margin-top: 16px;
+}
+.editor-empty {
+  padding: 28px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  background: #f8fafc;
+}
+.section-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge.secondary {
+  background: #e2e8f0;
+  color: #334155;
+}
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.editor-grid-wide {
+  grid-column: 1 / -1;
+}
+.validation-box {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.validation-box.ok {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+.validation-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.items-table-wrap {
+  margin-top: 8px;
+}
+.items-table {
+  min-width: 1120px;
+}
+.table-input-label {
+  display: block;
+}
+.table-input-label input {
+  min-width: 110px;
+}
+.row-actions {
+  width: 1%;
+  white-space: nowrap;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 .snapshot {
   margin-top: 12px;
@@ -171,5 +296,15 @@ th {
 
   .settings-panel {
     position: static;
+  }
+
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-head,
+  .header-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
