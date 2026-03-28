@@ -286,7 +286,7 @@ function renderRequestModal(request, validationMessages, isOpen) {
         <div class="modal-section-header">
           <div>
             <h3>Request Details</h3>
-            <p class="muted-text">Request-level поля без зміни data contract поза optional `note` і `priority`.</p>
+            <p class="muted-text">Request-level поля без зміни data contract поза optional fields note і priority.</p>
           </div>
           <div class="modal-meta">
             <span class="pill">Створено: ${escapeHtml(formatDateTime(request.createdAt))}</span>
