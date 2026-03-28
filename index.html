@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PaintTrack Starter</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel settings-panel">
+        <h1>PaintTrack Starter</h1>
+        <p class="muted">Мінімальний стартовий UI для перевірки локального збереження та синхронізації з GitHub data repo.</p>
+
+        <section>
+          <h2>Налаштування GitHub</h2>
+          <form id="settings-form" class="stack">
+            <label>
+              <span>Owner</span>
+              <input id="owner" name="owner" placeholder="your-github-username" />
+            </label>
+            <label>
+              <span>Data repo</span>
+              <input id="repo" name="repo" placeholder="painttrack-data" />
+            </label>
+            <label>
+              <span>Branch</span>
+              <input id="branch" name="branch" placeholder="main" />
+            </label>
+            <label>
+              <span>Path</span>
+              <input id="path" name="path" placeholder="data.json" />
+            </label>
+            <label>
+              <span>Fine-grained PAT</span>
+              <input id="token" name="token" type="password" placeholder="github_pat_..." autocomplete="off" />
+            </label>
+            <label class="checkbox">
+              <input id="syncOnOpen" name="syncOnOpen" type="checkbox" />
+              <span>Синхронізувати при відкритті</span>
+            </label>
+            <button type="submit">Зберегти налаштування</button>
+          </form>
+        </section>
+
+        <section>
+          <h2>Дії</h2>
+          <div class="actions">
+            <button id="add-demo-request" type="button">Додати тестову заявку</button>
+            <button id="sync-now" type="button">Синхронізувати</button>
+            <button id="pull-remote" type="button">Отримати з GitHub</button>
+            <button id="clear-local" type="button" class="secondary">Очистити локальні дані</button>
+          </div>
+        </section>
+
+        <section>
+          <h2>Статус</h2>
+          <dl class="status-list">
+            <div><dt>Schema</dt><dd id="schema-version">—</dd></div>
+            <div><dt>Revision</dt><dd id="revision">—</dd></div>
+            <div><dt>Dirty</dt><dd id="dirty-flag">—</dd></div>
+            <div><dt>Last sync</dt><dd id="last-sync">—</dd></div>
+            <div><dt>Remote SHA</dt><dd id="remote-sha">—</dd></div>
+          </dl>
+          <div id="app-status" class="notice">Готово до старту.</div>
+        </section>
+      </aside>
+
+      <main class="panel">
+        <section class="header-row">
+          <div>
+            <h2>Заявки</h2>
+            <p class="muted">Поки що тут лише мінімальна структура для перевірки флоу.</p>
+          </div>
+        </section>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>№</th>
+                <th>Клієнт</th>
+                <th>Завод</th>
+                <th>Статус</th>
+                <th>Позицій</th>
+                <th>Оновлено</th>
+              </tr>
+            </thead>
+            <tbody id="requests-body">
+              <tr>
+                <td colspan="6" class="empty">Поки що даних немає.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <section>
+          <h2>Raw snapshot</h2>
+          <pre id="snapshot-view" class="snapshot"></pre>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
