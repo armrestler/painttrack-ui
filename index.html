@@ -3,112 +3,224 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PaintTrack Starter</title>
+    <title>PaintTrack</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="layout">
-      <aside class="panel settings-panel">
-        <h1>PaintTrack Starter</h1>
-        <p class="muted">Мінімальний стартовий UI для перевірки локального збереження та синхронізації з GitHub data repo.</p>
-
-        <section>
-          <h2>Налаштування GitHub</h2>
-          <form id="settings-form" class="stack">
-            <label>
-              <span>Owner</span>
-              <input id="owner" name="owner" placeholder="your-github-username" />
-            </label>
-            <label>
-              <span>Data repo</span>
-              <input id="repo" name="repo" placeholder="painttrack-data" />
-            </label>
-            <label>
-              <span>Branch</span>
-              <input id="branch" name="branch" placeholder="main" />
-            </label>
-            <label>
-              <span>Path</span>
-              <input id="path" name="path" placeholder="data.json" />
-            </label>
-            <label>
-              <span>Fine-grained PAT</span>
-              <input id="token" name="token" type="password" placeholder="github_pat_..." autocomplete="off" />
-            </label>
-            <label class="checkbox">
-              <input id="syncOnOpen" name="syncOnOpen" type="checkbox" />
-              <span>Синхронізувати при відкритті</span>
-            </label>
-            <button type="submit">Зберегти налаштування</button>
-          </form>
-        </section>
-
-        <section>
-          <h2>Дії</h2>
-          <div class="actions">
-            <button id="add-demo-request" type="button">Створити заявку</button>
-            <button id="sync-now" type="button">Синхронізувати</button>
-            <button id="pull-remote" type="button">Отримати з GitHub</button>
-            <button id="clear-local" type="button" class="secondary">Очистити локальні дані</button>
-          </div>
-        </section>
-
-        <section>
-          <h2>Статус</h2>
-          <dl class="status-list">
-            <div><dt>Schema</dt><dd id="schema-version">—</dd></div>
-            <div><dt>Revision</dt><dd id="revision">—</dd></div>
-            <div><dt>Dirty</dt><dd id="dirty-flag">—</dd></div>
-            <div><dt>Last sync</dt><dd id="last-sync">—</dd></div>
-            <div><dt>Remote SHA</dt><dd id="remote-sha">—</dd></div>
-          </dl>
-          <div id="app-status" class="notice">Готово до старту.</div>
-        </section>
-      </aside>
-
-      <main class="panel">
-        <section class="header-row">
-          <div>
-            <h2>Заявки</h2>
-            <p class="muted">Вибери заявку в таблиці, щоб відкрити редактор деталей і позицій.</p>
-          </div>
-        </section>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>№</th>
-                <th>Клієнт</th>
-                <th>Завод</th>
-                <th>Статус</th>
-                <th>Позицій</th>
-                <th>Оновлено</th>
-              </tr>
-            </thead>
-            <tbody id="requests-body">
-              <tr>
-                <td colspan="6" class="empty">Поки що даних немає.</td>
-              </tr>
-            </tbody>
-          </table>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <p class="eyebrow">Production Request Planner</p>
+          <h1>PaintTrack</h1>
         </div>
 
-        <section class="editor-section">
-          <div class="header-row editor-header-row">
-            <div>
-              <h2>Деталі заявки</h2>
-              <p class="muted">Редагування зберігається локально і входить у наявний save/sync flow.</p>
-            </div>
+        <nav class="topnav" aria-label="Основна навігація">
+          <button type="button" class="nav-tab" data-tab="requests">Заявки</button>
+          <button type="button" class="nav-tab" data-tab="factories">Заводи</button>
+          <button type="button" class="nav-tab" data-tab="settings">Налаштування</button>
+        </nav>
+
+        <div class="topbar-actions">
+          <div id="sync-badge" class="sync-badge">
+            <span id="sync-dot" class="sync-dot"></span>
+            <span id="sync-label">Локальний режим</span>
           </div>
-          <div id="request-details"></div>
+          <button id="sync-now" type="button" class="button secondary">Зберегти та синхронізувати</button>
+          <button id="create-request" type="button" class="button primary">Нова заявка</button>
+        </div>
+      </header>
+
+      <div id="app-status" class="notice">Готово до старту.</div>
+
+      <main class="app-main">
+        <section id="page-requests" class="page">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Requests Workspace</p>
+              <h2>Заявки</h2>
+            </div>
+            <p class="page-subtitle">Огляд заявок, фільтри та швидкий вхід у редактор Request.</p>
+          </div>
+
+          <div id="request-kpis" class="kpi-grid"></div>
+
+          <section class="surface filter-surface">
+            <div id="requests-filters" class="filter-grid">
+              <label class="field field-wide">
+                <span>Пошук</span>
+                <input id="filter-search" class="control" type="search" placeholder="Номер, клієнт, завод, позиція" />
+              </label>
+              <label class="field">
+                <span>Статус</span>
+                <select id="filter-status" class="control"></select>
+              </label>
+              <label class="field">
+                <span>Factory</span>
+                <select id="filter-factory" class="control"></select>
+              </label>
+              <label class="field">
+                <span>Пріоритет</span>
+                <select id="filter-priority" class="control"></select>
+              </label>
+            </div>
+          </section>
+
+          <section class="surface">
+            <div class="section-header">
+              <div>
+                <h3>Список заявок</h3>
+                <p id="requests-summary" class="muted-text"></p>
+              </div>
+            </div>
+
+            <div class="table-shell">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Request</th>
+                    <th>Клієнт</th>
+                    <th>Factory</th>
+                    <th>Статус</th>
+                    <th>Позиції</th>
+                    <th>Produced / Shipped</th>
+                    <th>Оновлено</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="requests-body">
+                  <tr>
+                    <td colspan="8" class="empty">Поки що даних немає.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
         </section>
 
-        <section>
-          <h2>Raw snapshot</h2>
-          <pre id="snapshot-view" class="snapshot"></pre>
+        <section id="page-factories" class="page">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Factory Overview</p>
+              <h2>Заводи</h2>
+            </div>
+            <p class="page-subtitle">Зведення по заявках і кількостях без окремого workflow заводу на цьому етапі.</p>
+          </div>
+
+          <div id="factory-kpis" class="kpi-grid"></div>
+
+          <section class="surface">
+            <div class="section-header">
+              <div>
+                <h3>Поточне навантаження</h3>
+                <p id="factories-summary" class="muted-text"></p>
+              </div>
+            </div>
+
+            <div class="table-shell">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Factory</th>
+                    <th>Заявки</th>
+                    <th>Позиції</th>
+                    <th>Produced Qty</th>
+                    <th>Shipped Qty</th>
+                    <th>Статуси</th>
+                  </tr>
+                </thead>
+                <tbody id="factories-body">
+                  <tr>
+                    <td colspan="6" class="empty">Поки що немає даних по заводах.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="page-settings" class="page">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Sync and Local Storage</p>
+              <h2>Налаштування</h2>
+            </div>
+            <p class="page-subtitle">Окрема сторінка для GitHub sync та локального стану без постійного бокового блоку.</p>
+          </div>
+
+          <div class="settings-layout">
+            <section class="surface">
+              <div class="section-header">
+                <div>
+                  <h3>GitHub Data Repo</h3>
+                  <p class="muted-text">Ті самі налаштування sync, але в окремій вкладці.</p>
+                </div>
+              </div>
+
+              <form id="settings-form" class="settings-grid">
+                <label class="field">
+                  <span>Owner</span>
+                  <input id="owner" class="control" name="owner" placeholder="your-github-username" />
+                </label>
+                <label class="field">
+                  <span>Data repo</span>
+                  <input id="repo" class="control" name="repo" placeholder="painttrack-data" />
+                </label>
+                <label class="field">
+                  <span>Branch</span>
+                  <input id="branch" class="control" name="branch" placeholder="main" />
+                </label>
+                <label class="field">
+                  <span>Path</span>
+                  <input id="path" class="control" name="path" placeholder="data.json" />
+                </label>
+                <label class="field settings-grid-wide">
+                  <span>Fine-grained PAT</span>
+                  <input id="token" class="control" name="token" type="password" placeholder="github_pat_..." autocomplete="off" />
+                </label>
+                <label class="toggle settings-grid-wide">
+                  <input id="syncOnOpen" name="syncOnOpen" type="checkbox" />
+                  <span>Синхронізувати при відкритті</span>
+                </label>
+
+                <div class="settings-actions settings-grid-wide">
+                  <button type="submit" class="button primary">Зберегти налаштування</button>
+                  <button id="pull-remote" type="button" class="button secondary">Отримати з GitHub</button>
+                  <button id="clear-local" type="button" class="button danger">Очистити локальні дані</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="surface">
+              <div class="section-header">
+                <div>
+                  <h3>Стан даних</h3>
+                  <p class="muted-text">Видимий оператору sync-стан і технічні метадані.</p>
+                </div>
+              </div>
+
+              <dl class="meta-list">
+                <div><dt>Schema</dt><dd id="schema-version">—</dd></div>
+                <div><dt>Revision</dt><dd id="revision">—</dd></div>
+                <div><dt>Dirty</dt><dd id="dirty-flag">—</dd></div>
+                <div><dt>Last sync</dt><dd id="last-sync">—</dd></div>
+                <div><dt>Remote SHA</dt><dd id="remote-sha">—</dd></div>
+              </dl>
+
+              <details class="debug-panel">
+                <summary>Developer debug</summary>
+                <pre id="snapshot-view" class="snapshot"></pre>
+              </details>
+            </section>
+          </div>
         </section>
       </main>
+
+      <div id="request-modal" class="request-modal" aria-hidden="true">
+        <div class="modal-backdrop" data-action="close-modal"></div>
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="request-modal-title">
+          <div id="request-modal-content"></div>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="./src/app.js"></script>

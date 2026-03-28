@@ -26,7 +26,15 @@ const state = {
   settings: loadSettings(),
   appData: replaceAppData(loadSnapshot() ?? createEmptyAppData()),
   syncMeta: loadSyncMeta(),
-  selectedRequestId: null
+  selectedRequestId: null,
+  activeTab: 'requests',
+  isRequestModalOpen: false,
+  requestFilters: {
+    search: '',
+    status: 'all',
+    factory: 'all',
+    priority: 'all'
+  }
 };
 
 bootstrap();
@@ -53,6 +61,13 @@ async function bootstrap() {
 }
 
 function bindEvents() {
+  document.querySelectorAll('.nav-tab').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.activeTab = button.dataset.tab;
+      render();
+    });
+  });
+
   document.getElementById('settings-form').addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -69,10 +84,20 @@ function bindEvents() {
     showStatus('Налаштування збережено локально.');
   });
 
-  document.getElementById('add-demo-request').addEventListener('click', () => {
+  document.getElementById('create-request').addEventListener('click', () => {
     const result = createRequest(state.appData);
-    commitLocalChange(result.appData, result.requestId);
+    commitLocalChange(result.appData, result.requestId, { openModal: true, activeTab: 'requests' });
     showStatus('Створено нову заявку. Локальний стан позначено як dirty.');
+  });
+
+  document.getElementById('requests-filters').addEventListener('input', () => {
+    syncRequestFiltersFromDom();
+    render();
+  });
+
+  document.getElementById('requests-filters').addEventListener('change', () => {
+    syncRequestFiltersFromDom();
+    render();
   });
 
   document.getElementById('requests-body').addEventListener('click', (event) => {
@@ -81,8 +106,7 @@ function bindEvents() {
       return;
     }
 
-    state.selectedRequestId = row.dataset.requestId;
-    render();
+    openRequestModal(row.dataset.requestId);
   });
 
   document.getElementById('requests-body').addEventListener('keydown', (event) => {
@@ -96,15 +120,14 @@ function bindEvents() {
     }
 
     event.preventDefault();
-    state.selectedRequestId = row.dataset.requestId;
-    render();
+    openRequestModal(row.dataset.requestId);
   });
 
-  document.getElementById('request-details').addEventListener('change', (event) => {
+  document.getElementById('request-modal').addEventListener('change', (event) => {
     const requestField = event.target.dataset.requestField;
     if (requestField && state.selectedRequestId) {
       const nextAppData = updateRequestField(state.appData, state.selectedRequestId, requestField, event.target.value);
-      commitLocalChange(nextAppData, state.selectedRequestId);
+      commitLocalChange(nextAppData, state.selectedRequestId, { openModal: true });
       showStatus('Зміни заявки збережено локально.');
       return;
     }
@@ -115,12 +138,12 @@ function bindEvents() {
 
     if (itemField && requestId && itemId) {
       const nextAppData = updateRequestItemField(state.appData, requestId, itemId, itemField, event.target.value);
-      commitLocalChange(nextAppData, requestId);
+      commitLocalChange(nextAppData, requestId, { openModal: true });
       showStatus('Зміни позиції збережено локально.');
     }
   });
 
-  document.getElementById('request-details').addEventListener('click', (event) => {
+  document.getElementById('request-modal').addEventListener('click', (event) => {
     const actionTarget = event.target.closest('[data-action]');
     if (!actionTarget) {
       return;
@@ -128,17 +151,28 @@ function bindEvents() {
 
     const { action, requestId, itemId } = actionTarget.dataset;
 
+    if (action === 'close-modal') {
+      closeRequestModal();
+      return;
+    }
+
     if (action === 'add-item' && requestId) {
       const nextAppData = addRequestItem(state.appData, requestId);
-      commitLocalChange(nextAppData, requestId);
+      commitLocalChange(nextAppData, requestId, { openModal: true });
       showStatus('Додано нову позицію. Локальний стан позначено як dirty.');
       return;
     }
 
     if (action === 'delete-item' && requestId && itemId) {
       const nextAppData = deleteRequestItem(state.appData, requestId, itemId);
-      commitLocalChange(nextAppData, requestId);
+      commitLocalChange(nextAppData, requestId, { openModal: true });
       showStatus('Позицію видалено. Локальний стан позначено як dirty.', 'warning');
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && state.isRequestModalOpen) {
+      closeRequestModal();
     }
   });
 
@@ -159,6 +193,7 @@ function bindEvents() {
       state.appData = replaceAppData(result.appData);
       state.syncMeta = result.syncMeta;
       state.selectedRequestId = selectExistingRequestId(state.appData, state.selectedRequestId);
+      state.isRequestModalOpen = state.isRequestModalOpen && Boolean(state.selectedRequestId);
       persistState();
       render();
       showStatus('Останню версію з GitHub отримано.');
@@ -171,6 +206,7 @@ function bindEvents() {
     state.appData = replaceAppData(createEmptyAppData());
     state.syncMeta = defaultSyncMeta();
     state.selectedRequestId = null;
+    state.isRequestModalOpen = false;
     clearSnapshot();
     saveSnapshot(state.appData);
     saveSyncMeta(state.syncMeta);
@@ -183,6 +219,7 @@ function applySyncResult(result) {
   if (result.appData) {
     state.appData = replaceAppData(result.appData);
     state.selectedRequestId = selectExistingRequestId(state.appData, state.selectedRequestId);
+    state.isRequestModalOpen = state.isRequestModalOpen && Boolean(state.selectedRequestId);
   }
 
   if (result.syncMeta) {
@@ -213,7 +250,12 @@ function render() {
   renderWorkspace(
     state.appData,
     state.syncMeta,
-    state.selectedRequestId,
+    {
+      activeTab: state.activeTab,
+      isRequestModalOpen: state.isRequestModalOpen,
+      requestFilters: state.requestFilters,
+      selectedRequestId: state.selectedRequestId
+    },
     validateRequest(getRequestById(state.appData, state.selectedRequestId))
   );
 }
@@ -222,9 +264,15 @@ function hasGitHubSettings(settings) {
   return Boolean(settings.owner && settings.repo && settings.branch && settings.path && settings.token);
 }
 
-function commitLocalChange(nextAppData, selectedRequestId) {
+function commitLocalChange(nextAppData, selectedRequestId, options = {}) {
   state.appData = nextAppData;
   state.selectedRequestId = selectExistingRequestId(state.appData, selectedRequestId);
+  state.isRequestModalOpen = options.openModal ?? (state.isRequestModalOpen && Boolean(state.selectedRequestId));
+
+  if (options.activeTab) {
+    state.activeTab = options.activeTab;
+  }
+
   state.syncMeta = {
     ...state.syncMeta,
     isDirty: true
@@ -239,4 +287,25 @@ function selectExistingRequestId(appData, preferredRequestId) {
   }
 
   return appData.requests[0]?.id ?? null;
+}
+
+function syncRequestFiltersFromDom() {
+  state.requestFilters = {
+    search: document.getElementById('filter-search').value,
+    status: document.getElementById('filter-status').value,
+    factory: document.getElementById('filter-factory').value,
+    priority: document.getElementById('filter-priority').value
+  };
+}
+
+function openRequestModal(requestId) {
+  state.selectedRequestId = selectExistingRequestId(state.appData, requestId);
+  state.activeTab = 'requests';
+  state.isRequestModalOpen = Boolean(state.selectedRequestId);
+  render();
+}
+
+function closeRequestModal() {
+  state.isRequestModalOpen = false;
+  render();
 }

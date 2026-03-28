@@ -20,67 +20,59 @@ Current task:
 
 Read AGENTS.md and docs/PROJECT_CONTEXT.md first.
 
-This repository already has working GitHub sync, local persistence, and a minimal starter UI.
-Do not replace the current architecture, do not introduce frameworks, and do not rewrite the app.
-Keep the current modular vanilla JavaScript structure and make a small incremental change.
+Important:
+The current deployed UI is only a technical starter and its layout must NOT be preserved as the target product UI.
+Do not keep the left settings sidebar as the main interaction model.
+Keep the existing sync/storage/business logic as much as possible, but replace the current UI shell.
 
 Goal:
-Implement the first usable Request Editor on top of the current starter version.
+Refactor the app UI to match the intended PaintTrack product direction:
+top navigation, dedicated pages/tabs, and modal-based request editing.
 
-Scope:
-1. Keep the current left sidebar with GitHub settings and sync actions.
-2. Keep the current requests table, but make each request row clickable.
-3. Add a "Створити заявку" action that creates a real empty request instead of using only the test request button.
-4. Add a Request Details panel for the selected request.
-5. In Request Details, support editing these request-level fields:
-    - number
-    - customerName
-    - factoryName
-    - status
-    - note (new optional field)
-    - priority/sequnce (all the Requests can have different priorities/sequnce, e.g., high, medium, low for its factories, sales department can change it depending on ongoing needs)
-6. In Request Details, add basic item management:
-    - show request items in a table
-    - add item
-    - edit item inline or in a simple form
-    - delete item
-7. For each item, support these fields:
-    - barcode
-    - name
-    - packaging
-    - capacity
-    - quantity
-    - unit
-    - weight
-    - processingPrice
-    - desiredDate
-    - producedQty
-    - shippedQty
-8. Add basic validation rules in application/domain logic, not directly in render code:
-    - shippedQty must not be greater than producedQty
-    - quantity must not be negative
-    - producedQty must not be negative
-    - shippedQty must not be negative
-9. Persist all edits to the existing local state and local storage.
-10. Do not change GitHub sync behavior except wiring the new edited state into the already existing save/sync flow.
+Required UI direction:
+0. Check as reference our old UI that had desired design in
+painttrack_refactored.html
+1. Replace the current left sidebar layout.
+2. Add a top header navigation with tabs:
+   - Заявки
+   - Заводи
+   - Налаштування
+3. Keep sync status and key actions in the header area:
+   - sync badge
+   - save/sync action
+   - new request action
+4. Main Requests page should contain:
+   - KPI cards
+   - filters/search row
+   - requests table
+5. Settings must be a separate page/tab, not a persistent sidebar block.
+6. Request editing must open in a modal or large overlay, not in the main page column.
+7. Remove Raw snapshot from the main UI.
+   - If needed, keep it as a hidden developer/debug section or omit it entirely for now.
+8. Keep the current working sync flow and local persistence behavior.
+9. Do not redesign data contracts in this task.
+10. Do not implement new business features in this task beyond what is needed to support the new UI structure.
 
-Important constraints:
-- Do not implement Supporting Materials yet.
-- Do not modify the remote data contract more than necessary.
-- If a new optional field is needed, keep it backward-compatible.
-- Do not break existing sync-on-open, manual sync, or snapshot rendering.
-- Keep changes small and easy to review.
-- Prefer extending existing modules over introducing many new abstractions.
+Use as visual/product reference:
+- the uploaded/refactored PaintTrack HTML design already discussed in this project
+- dark theme
+- compact top navigation
+- KPI cards
+- filters + table
+- large structured request modal
+
+Constraints:
+- Focus on UI shell/layout refactor only.
+- Keep changes incremental enough to review.
+- Reuse current modules where possible.
+- Do not migrate to React or another framework.
 
 Before coding:
-1. Summarize the exact files you will change.
-2. State any minimal data shape extension you need.
+1. List exactly which files you will change.
+2. Explain how you will preserve current sync/storage logic.
 3. Then implement.
 
 After coding:
-Provide a short summary of what was added and what was intentionally left for the next phase.
-
-Before coding:
-1. briefly summarize the relevant existing structure
-2. mention which files you plan to touch
-3. keep the change small and reviewable
+1. Summarize the new UI structure.
+2. Mention any old starter elements intentionally removed.
+3. Mention what remains for the next phase.
